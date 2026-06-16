@@ -1,6 +1,8 @@
 # AI Agent Workflow Automation (n8n + Human-in-the-Loop)
 
 An end-to-end automated social media posting pipeline built using n8n, Groq LLM, Cloudinary, and Gmail with a Human-in-the-Loop (HITL) approval system.
+<img width="2880" height="1602" alt="image" src="https://github.com/user-attachments/assets/3cf464c1-eff6-4f0e-9c66-ba1c4101326b" />
+
 
 ## 🚀 Demo Video
 [Insert your Loom/Drive/YouTube Link Here]
