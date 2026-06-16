@@ -1,0 +1,229 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b2886f05-f4e5-44f0-8d66-67947f21585c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6441e7ac-c9dc-4159-be52-5681686a18c4",
+      "name": "Webhook",
+      "webhookId": "b2886f05-f4e5-44f0-8d66-67947f21585c"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional social media manager. Write an engaging social media post description about the following topic: {{ $('Webhook').item.json.body.post_topic }}.\nSTRICT CONSTRAINT: Your response must be strictly between 90 and 150 words long. Do not truncate the text, ensure it has a natural flow and complete sentences. Do not include any intros or outros, just output the post content directly.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0756fb55-03e9-4837-8534-13d7621047a5",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        544,
+        208
+      ],
+      "id": "b67c032d-4b29-4148-8ac0-5844e1349791",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "o1yAnuKC985TITQ7",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "responseCode": "={{ 200 }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1408,
+        -16
+      ],
+      "id": "d30625c0-5e90-4fb7-bb01-b60296968855",
+      "name": "Wait",
+      "webhookId": "22421538-4611-453f-9c5f-6b09a97bdcb7"
+    },
+    {
+      "parameters": {
+        "sendTo": "shirinmahbuba4@gmail.com",
+        "subject": "Social Media Post Approval Required",
+        "message": "=<h3>New Social Media Post for Review</h3>\n<p><strong>Description:</strong> {{ $json.text }}</p>\n<p><strong>Generated Image:</strong> <a href=\"{{ $('Compose: Custom Transformation String').item.json.secure_url }}\">Click here to view Image</a></p>\n<br>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1152,
+        -32
+      ],
+      "id": "2d6e5ce8-3bbc-4936-a4bb-74e17ed2a79d",
+      "name": "Send a message",
+      "webhookId": "a79e62b3-0236-41b6-8b87-e92ceff12b64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "idKwrtpbrmJyTnff",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "transform",
+        "operation": "customTransformation",
+        "transformPublicId": "main-sample",
+        "customTransformationString": "=t_myimage/l_text:Arial_30_bold:{{ $json.text.substring(0,40) }},g_south,y_50",
+        "customFormat": "png",
+        "transformAdditionalOptions": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 2,
+      "position": [
+        912,
+        144
+      ],
+      "id": "3175a0cf-25dc-488d-93cf-dd9bc8d9a54f",
+      "name": "Compose: Custom Transformation String",
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "sb3I4o1piAS3ldP5",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/7ccd3bfa-0b33-4be7-855e-126d9c2c94fa",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $('Basic LLM Chain').item.json.text }}"
+            },
+            {
+              "name": "image_url",
+              "value": "={{ $('Compose: Custom Transformation String').item.json.secure_url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1616,
+        -16
+      ],
+      "id": "9ea2cfcd-2376-42f6-b4fe-3c0fdc1ed6e3",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Compose: Custom Transformation String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose: Custom Transformation String": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d7014949-0dda-4f1a-b740-7307154612ec",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6466b0454d3e299b15837531a260e9fb3f06be2d82372919bac62e66866f5648"
+  },
+  "nodeGroups": [],
+  "id": "Xk3NpknHRXcbTXww",
+  "tags": []
+}
