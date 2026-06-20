@@ -5,7 +5,7 @@ An end-to-end automated social media posting pipeline built using n8n, Groq LLM,
 
 
 ## 🚀 Demo Video
-[Insert your Loom/Drive/YouTube Link Here]
+[https://drive.google.com/file/d/1-eQTrJxprGrSkdx3MzmWCKWDD5ONsmor/view?usp=sharing]
 
 ## 🛠️ Architecture Explanation
 
